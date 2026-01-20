@@ -25,6 +25,15 @@ def get_page_image(file_bytes: bytes, page_idx: int, dpi: int) -> Image.Image:
 
 
 def main():
+    hide_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stAppDeployButton {display: none;}
+        </style>
+    """
+    st.markdown(hide_style, unsafe_allow_html=True)
     """メインアプリのロジック。"""
     st.set_page_config(page_title="献立一括分割ツール", layout="wide")
     st.title("🍴 献立PDF一括分割ツール")
