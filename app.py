@@ -34,7 +34,6 @@ def main():
         </style>
     """
     st.markdown(hide_style, unsafe_allow_html=True)
-    """メインアプリのロジック。"""
     st.set_page_config(page_title="献立一括分割ツール", layout="wide")
     st.title("🍴 献立PDF一括分割ツール")
     st.caption("カレンダーの曜日位置に基づき、日付を自動計算して一括保存します")
@@ -69,7 +68,7 @@ def main():
     template_page = st.selectbox(
         "確認用ページ", range(1, page_count + 1), index=0
     ) - 1
-    
+
     full_img = get_page_image(file_bytes, template_page, dpi)
     page_monday = first_monday + timedelta(days=template_page * 7)
 
@@ -78,7 +77,6 @@ def main():
         preview_img = full_img.copy()
         draw = ImageDraw.Draw(preview_img)
         draw.rectangle([x0, y0, x1, y1], outline="red", width=5)
-        
         w_step = (x1 - x0) / 7
         for i in range(7):
             lx = x0 + i * w_step
@@ -87,7 +85,7 @@ def main():
             draw.line([(lx, y0), (lx, y1)], fill=color, width=2)
             draw.text((lx + 5, y0 + 5),
                       f"{c_date.month}/{c_date.day}", fill=color)
-        
+
         st.image(preview_img, caption=f"ページ {template_page+1}: 範囲確認")
 
     with col_crop:
@@ -100,23 +98,23 @@ def main():
     if st.button(btn_label):
         zip_buf = io.BytesIO()
         saved_count = 0
-        
+
         with zipfile.ZipFile(zip_buf, "a", zipfile.ZIP_DEFLATED) as zip_f:
             progress = st.progress(0.0)
             for p_idx in range(page_count):
                 p_img = get_page_image(file_bytes, p_idx, dpi)
                 p_monday = first_monday + timedelta(days=p_idx * 7)
-                
+
                 w_step = (x1 - x0) / 7
                 for i in range(7):
                     curr_date = p_monday + timedelta(days=i)
                     if curr_date.month != target_month:
                         continue
-                    
+
                     d_left = x0 + i * w_step
                     d_right = d_left + w_step if i < 6 else x1
                     cropped = p_img.crop((d_left, y0, d_right, y1))
-                    
+
                     img_io = io.BytesIO()
                     cropped.save(img_io, format='PNG')
                     # ファイル名は「日付.png」として保存 [cite: 3]
@@ -137,7 +135,8 @@ def main():
     # --- 作成者クレジット（フッターに「うっすら」追加） ---
     st.markdown("---")
     st.markdown(
-        '<div style="text-align: right; color: gray; font-size: 0.8em; opacity: 0.5;">'
+        '<div style="text-align: right; color: gray;'
+        ' font-size: 0.8em; opacity: 0.5;">'
         'Created by カガワナオト'
         '</div>',
         unsafe_allow_html=True
